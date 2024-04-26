@@ -1,0 +1,6 @@
+@SeleneSolution.Server_HostAddress = http://localhost:5044
+
+GET {{SeleneSolution.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "reactstrap": "^9.2.2",
+    "sweetalert2": "^11.10.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0"
+  }
+}
