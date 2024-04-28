@@ -7,15 +7,6 @@ import { useContext, useState } from "react";
 import "./css/Venta.css"
 import { UserContext } from "../context/UserProvider";
 
-const modelo = {
-    nombre: "",
-    correo: "",
-    idRolNavigation: {
-        idRol: 0,
-        descripcion: ""
-    }
-}
-
 const Venta = () => {
     const { user } = useContext(UserContext)
 
@@ -84,7 +75,6 @@ const Venta = () => {
     }
 
     const sugerenciaSeleccionada = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
-        console.log("hola")
         console.log(suggestion)
         Swal.fire({
             title: suggestion.codigo + " - " + suggestion.nombre,
@@ -108,7 +98,8 @@ const Venta = () => {
                 } else {
 
                     let producto = {
-                        idProducto: suggestion.$id,
+                        nitProveedor: suggestion.nitProveedor,
+                        idProducto: suggestion.idProducto,
                         codigo: suggestion.codigo,
                         nombre: suggestion.nombre,
                         cantidad: parseInt(inputValue),
@@ -137,7 +128,6 @@ const Venta = () => {
     }
 
     const eliminarProducto = (id) => {
-        console.log(id)
         let listaproductos = productos.filter(p => p.codigo != id)
 
         setProductos(listaproductos)
@@ -171,7 +161,7 @@ const Venta = () => {
 
 
     const terminarVenta = () => {
-
+        debugger
         if (productos.length < 1) {
             Swal.fire(
                 'Opps!',

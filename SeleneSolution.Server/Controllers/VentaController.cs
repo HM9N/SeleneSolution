@@ -32,6 +32,7 @@ namespace SeleneSolution.Server.Controllers
                 .Where(p => string.Concat(p.Codigo.ToLower(), p.Codigo.ToLower(), p.Nombre.ToLower()).Contains(busqueda.ToLower()))
                 .Select(p => new DtoProducto()
                 {
+                    IdProducto = p.IdProducto,
                     Codigo = p.Codigo,
                     Nombre = p.Nombre,
                     Valor = (decimal)p.Valor,
@@ -51,9 +52,9 @@ namespace SeleneSolution.Server.Controllers
         [Route("Registrar")]
         public IActionResult Registrar([FromBody] DtoVenta request)
         {
+            var hola = "";
             try
             {
-
                 XElement productos = new XElement("Productos");
                 foreach (DtoProducto item in request.ListaProductos)
                 {
@@ -65,6 +66,8 @@ namespace SeleneSolution.Server.Controllers
                         new XElement("Total", item.Total)
                         ));
                 }
+
+                var hola2 = "";
 
                 using (SqlConnection con = new SqlConnection(_context.Database.GetConnectionString()))
                 {

@@ -86,7 +86,7 @@ const Producto = () => {
         {
             name: 'Proveedor',
             selector: row => row.nitProveedorNavigation.nombre,
-            //selector: row => row.nitProveedorNavigation ? row.nitProveedorNavigation.nombre : "Proveedor no especificado",
+           // selector: row => row.nitProveedorNavigation ? row.nitProveedorNavigation.nombre : "Proveedor no especificado",
             sortable: true,
         },
         {
