@@ -95,7 +95,13 @@ const Venta = () => {
                     Swal.showValidationMessage(
                         "Debe ingresar un valor númerico"
                     )
-                } else {
+                }else if(parseFloat(inputValue<=0.9)){
+                    setA_Busqueda("")
+                    Swal.showValidationMessage(
+                        "Debe ingresar un valor positivo"
+                    )
+                } 
+                else {
 
                     let producto = {
                         nitProveedor: suggestion.nitProveedor,
@@ -161,7 +167,6 @@ const Venta = () => {
 
 
     const terminarVenta = () => {
-        debugger
         if (productos.length < 1) {
             Swal.fire(
                 'Opps!',

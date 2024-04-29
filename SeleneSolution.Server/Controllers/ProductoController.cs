@@ -26,7 +26,6 @@ namespace SeleneSolution.Server.Controllers
                 //lista = await _context.Productos.OrderByDescending(p => p.Codigo).ToListAsync();
 
                 lista = await _context.Productos
-                    .Include(p => p.NitProveedorNavigation) // Incluye la relación con Proveedores
                     .OrderByDescending(p => p.Codigo)
                     .ToListAsync();
 
@@ -43,9 +42,15 @@ namespace SeleneSolution.Server.Controllers
         [Route("Guardar")]
         public async Task<IActionResult> Guardar([FromBody] Productos request)
         {
-            var hola = "";
             try
             {
+                // Verificar si existe algún otro producto con el mismo código
+                var existingProduct = await _context.Productos.FirstOrDefaultAsync(p => p.Codigo == request.Codigo);
+
+                if (existingProduct != null)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "El código de producto ya está en uso.");
+                }
 
                 // Si el código no existe, guardar el nuevo producto
                 await _context.Productos.AddAsync(request);
@@ -66,10 +71,18 @@ namespace SeleneSolution.Server.Controllers
         {
             try
             {
+                // Verificar si existe algún otro producto con el mismo código
+                var existingProduct = await _context.Productos.FirstOrDefaultAsync(p => p.Codigo == request.Codigo && p.IdProducto != request.IdProducto);
+
+                if (existingProduct != null)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "El código de producto ya está en uso.");
+                }
+
                 _context.Productos.Update(request);
                 await _context.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status200OK, "ok");
+                return StatusCode(StatusCodes.Status200OK, "Producto editado exitosamente.");
             }
             catch (Exception ex)
             {

@@ -52,7 +52,6 @@ namespace SeleneSolution.Server.Controllers
         [Route("Registrar")]
         public IActionResult Registrar([FromBody] DtoVenta request)
         {
-            var hola = "";
             try
             {
                 XElement productos = new XElement("Productos");
@@ -66,8 +65,6 @@ namespace SeleneSolution.Server.Controllers
                         new XElement("Total", item.Total)
                         ));
                 }
-
-                var hola2 = "";
 
                 using (SqlConnection con = new SqlConnection(_context.Database.GetConnectionString()))
                 {

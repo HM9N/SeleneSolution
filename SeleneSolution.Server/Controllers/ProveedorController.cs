@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SeleneSolution.Server.Models;
 using SeleneSolution.Server.Models.DTO;
 using System.Data;
-using System.Globalization;
 
 namespace SeleneSolution.Server.Controllers
 {

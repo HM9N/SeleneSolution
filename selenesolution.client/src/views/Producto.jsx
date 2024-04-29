@@ -5,15 +5,15 @@ import { useEffect, useState } from "react";
 import DataTable from 'react-data-table-component';
 import DatePicker from "react-datepicker";
 import { Card, CardBody, CardHeader, Button, Modal, ModalHeader, ModalBody, Label, Input, FormGroup, ModalFooter, Row, Col } from "reactstrap"
-import Swal from 'sweetalert2'
-import Autosuggest from 'react-autosuggest';
+import Swal from 'sweetalert2';
 import moment from 'moment';
+import Select from 'react-select'
 
 
 const modeloProducto = {
-    codigo :"",
-    nombre :"",
-    fechaCreacion : new Date(),
+    codigo: "",
+    nombre: "",
+    fechaCreacion: new Date(),
     valor: 0,
     nitProveedor: 0,
     foto: ""
@@ -21,16 +21,15 @@ const modeloProducto = {
 
 
 const Producto = () => {
-
+    
+    const [proveedores, setProveedores] = useState([]);
     const [producto, setProducto] = useState(modeloProducto);
     const [pendiente, setPendiente] = useState(true);
     const [productos, setProductos] = useState([]);
     const [verModal, setVerModal] = useState(false);
     const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date()); // Estado para la fecha seleccionada
 
-
     const handleChange = (e) => {
-
         console.log(e.target.value)
 
         let value;
@@ -47,7 +46,6 @@ const Producto = () => {
         })
     }
 
-
     const formatFecha = (date) => {
         return moment(date).format("YYYY-MM-DD")
     };
@@ -55,10 +53,22 @@ const Producto = () => {
     const obtenerProductos = async () => {
         let response = await fetch("api/producto/Lista");
 
+        await obtenerProveedores();
+
         if (response.ok) {
             let data = await response.json()
             setProductos(data.$values)
+            console.log(data.$values)
             setPendiente(false)
+        }
+    }
+
+    const obtenerProveedores = async () => {
+        let response = await fetch("api/proveedor/Listar");
+
+        if (response.ok) {
+            let data = await response.json()
+            setProveedores(data.$values)
         }
     }
 
@@ -66,6 +76,28 @@ const Producto = () => {
         obtenerProductos();
     }, [])
 
+
+    const suppliers = proveedores.map(supplier => ({
+        label: `${supplier.nit} - ${supplier.nombre}`,
+        value: `${supplier.nit}`
+    }));
+
+    const handleSelectChange = ({ value }) => {
+        const selectedValue = parseInt(value)
+        setProducto({
+            ...producto,
+            ["nitProveedor"]: selectedValue
+        })
+    }
+
+    const devolverNombre = (nit) => {
+        // Buscar el proveedor cuyo valor coincida con el nit
+        const proveedor = suppliers.find(supplier => supplier.value === nit.toString());
+
+        const nombre = proveedor.label.split(' - ');
+
+        return nombre[1];   
+    }
 
     const columns = [
         {
@@ -85,8 +117,7 @@ const Producto = () => {
         },
         {
             name: 'Proveedor',
-            selector: row => row.nitProveedorNavigation.nombre,
-           // selector: row => row.nitProveedorNavigation ? row.nitProveedorNavigation.nombre : "Proveedor no especificado",
+            selector: row => row.nitProveedor ? devolverNombre(row.nitProveedor) : "Proveedor no especificado",
             sortable: true,
         },
         {
@@ -136,6 +167,7 @@ const Producto = () => {
     };
 
     const abrirEditarModal = (data) => {
+        console.log(data)
         setProducto(data);
         setVerModal(!verModal);
     }
@@ -147,8 +179,14 @@ const Producto = () => {
 
     const dataChangeHandler = (date) => {
         setFechaSeleccionada(date)
-        console.log(formatFecha(fechaSeleccionada))
-        console.log(fechaSeleccionada)
+    }
+
+    // Función para buscar un proveedor por nit
+    const buscarProveedorPorNit = (nit) => {
+        // Buscar el proveedor cuyo valor coincida con el nit
+        const proveedor = suppliers.find(supplier => supplier.value === nit.toString());
+
+        return proveedor ? { label: proveedor.label, value: proveedor.value } : null;
 
     }
 
@@ -179,6 +217,12 @@ const Producto = () => {
             await obtenerProductos();
             setProducto(modeloProducto)
             setVerModal(!verModal);
+            Swal.fire({
+                title: "Completado",
+                icon: "success"
+            }
+
+            );
 
         } else {
             const errorData = await response.text(); // Convertir el cuerpo de la respuesta en JSON
@@ -217,11 +261,19 @@ const Producto = () => {
                                 'El producto fue eliminado.',
                                 'success'
                             )
+                        }else{
+                            Swal.fire(
+                                'Problema!',
+                                'Ese producto está asociado a una factura. Revisa primero.',
+                                'warning'
+                            )
                         }
                     })
             }
         })
     }
+
+    const defaultValue = { label: "indefinido", value: 0 };
 
     return (
         <>
@@ -230,7 +282,7 @@ const Producto = () => {
                     Lista de Productos
                 </CardHeader>
                 <CardBody>
-                    <Button color="success" disabled size="sm" onClick={() => setVerModal(!verModal)}>Nuevo Producto</Button>
+                    <Button color="success" size="sm" onClick={() => setVerModal(!verModal)}>Nuevo Producto</Button>
                     <hr></hr>
                     <DataTable
                         columns={columns}
@@ -238,7 +290,7 @@ const Producto = () => {
                         progressPending={pendiente}
                         pagination
                         paginationComponentOptions={paginationComponentOptions}
-                        customStyles={ customStyles}
+                        customStyles={customStyles}
                     />
                 </CardBody>
             </Card>
@@ -271,17 +323,31 @@ const Producto = () => {
                         </Col>
                         <Col sm={6}>
                             <FormGroup>
+                                <Label>Proveedor</Label>
+                                <Select
+                                    defaultValue={buscarProveedorPorNit(producto.nitProveedor) || defaultValue}
+                                    options={suppliers}
+                                    onChange={handleSelectChange}
+                                />
+                            </FormGroup>
+                        </Col>
+                    </Row>
+                    <Row>
+
+                        <Col sm={6}>
+                            <FormGroup>
                                 <Label>Fecha</Label>
                                 <DatePicker
                                     className="form-control form-control-sm"
                                     name="fechaCreacion"
-                                    selected={fechaSeleccionada} 
-                                    onChange={(date) => dataChangeHandler(date)} 
+                                    selected={fechaSeleccionada}
+                                    onChange={(date) => dataChangeHandler(date)}
                                     dateFormat='dd-MM-yyyy'
                                 />
                             </FormGroup>
                         </Col>
                     </Row>
+
 
                 </ModalBody>
                 <ModalFooter>

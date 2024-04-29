@@ -23,22 +23,6 @@ const Proveedor = () => {
     const [proveedores, setProveedores] = useState([]);
     const [pendiente, setPendiente] = useState(true);
 
-
-    const handleChange = (e) => {
-
-        console.log(e.target.value)
-
-        let value;
-
-        value = e.target.value;
-
-        setProveedor({
-            ...proveedor,
-            [e.target.name]: value
-        })
-    }
-
-
     const obtenerProveedores = async () => {
         let response = await fetch("api/proveedor/Listar");
 
