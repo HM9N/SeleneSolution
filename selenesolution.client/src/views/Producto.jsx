@@ -8,6 +8,9 @@ import { Card, CardBody, CardHeader, Button, Modal, ModalHeader, ModalBody, Labe
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import Select from 'react-select'
+import LayoutBreakpoint from "../componentes/LayoutBreakpoint";
+import XSTable from "../componentes/XSTable";
+import './css/Botones.css';
 
 
 const modeloProducto = {
@@ -21,12 +24,13 @@ const modeloProducto = {
 
 
 const Producto = () => {
-    
+
     const [proveedores, setProveedores] = useState([]);
     const [producto, setProducto] = useState(modeloProducto);
     const [pendiente, setPendiente] = useState(true);
     const [productos, setProductos] = useState([]);
     const [verModal, setVerModal] = useState(false);
+    const [verModalImagen, setVerModalImagen] = useState(false);
     const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date()); // Estado para la fecha seleccionada
 
     const handleChange = (e) => {
@@ -72,6 +76,16 @@ const Producto = () => {
         }
     }
 
+    const [isScaled, setIsScaled] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsScaled(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsScaled(false);
+    };
+
     useEffect(() => {
         obtenerProductos();
     }, [])
@@ -96,7 +110,7 @@ const Producto = () => {
 
         const nombre = proveedor.label.split(' - ');
 
-        return nombre[1];   
+        return nombre[1];
     }
 
     const columns = [
@@ -129,6 +143,12 @@ const Producto = () => {
             name: '',
             cell: row => (
                 <>
+                    <Button color="primary" size="sm" className="mr-2"
+                        onClick={() => abrirModalImagen(row)}
+                    >
+                        <i className="fas fa-eye"></i>
+                    </Button>
+
                     <Button color="primary" size="sm" className="mr-2"
                         onClick={() => abrirEditarModal(row)}
                     >
@@ -167,9 +187,24 @@ const Producto = () => {
     };
 
     const abrirEditarModal = (data) => {
-        console.log(data)
         setProducto(data);
+        const partesFecha = data.fechaCreacion.split('-');
+        const año = parseInt(partesFecha[0]);
+        const mes = parseInt(partesFecha[1]) - 1; // Los meses en JavaScript van de 0 a 11
+        const dia = parseInt(partesFecha[2]);
+        const fecha = new Date(año, mes, dia);
+        setFechaSeleccionada(fecha)
         setVerModal(!verModal);
+    }
+
+    const abrirModalImagen = (data) => {
+        setProducto(data);
+        setVerModalImagen(!verModalImagen);
+    }
+
+    const cerrarModalImagen = () => {
+        setProducto(modeloProducto)
+        setVerModalImagen(!verModalImagen);
     }
 
     const cerrarModal = () => {
@@ -179,6 +214,14 @@ const Producto = () => {
 
     const dataChangeHandler = (date) => {
         setFechaSeleccionada(date)
+    }
+
+    const onActionButtonClickHandler = (action, row) => {
+        if (action == "EDIT") {
+            abrirEditarModal(row)
+        } else if (action == "VIEW") {
+            abrirModalImagen(row)
+        }
     }
 
     // Función para buscar un proveedor por nit
@@ -261,7 +304,7 @@ const Producto = () => {
                                 'El producto fue eliminado.',
                                 'success'
                             )
-                        }else{
+                        } else {
                             Swal.fire(
                                 'Problema!',
                                 'Ese producto está asociado a una factura. Revisa primero.',
@@ -277,7 +320,18 @@ const Producto = () => {
 
     return (
         <>
-            <Card>
+            <div className="d-block d-sm-none">
+                <XSTable columns={columns}
+                    data={productos}
+                    progressPending={pendiente}
+                    pagination={true}
+                    paginationComponentOptions={paginationComponentOptions}
+                    customStyles={customStyles}
+                    suppliers={suppliers}
+                    onActionButtonClick={onActionButtonClickHandler}></XSTable>
+            </div>
+            {/* componente para pantallas sm en adelante */}
+            <Card className='d-none d-sm-block'>
                 <CardHeader style={{ backgroundColor: '#4e73df', color: "white" }}>
                     Lista de Productos
                 </CardHeader>
@@ -294,6 +348,24 @@ const Producto = () => {
                     />
                 </CardBody>
             </Card>
+
+            <Modal isOpen={verModalImagen}>
+                <ModalBody>
+                    <div className="w-100">
+                        {/* Verificar si producto.foto es vacío o nulo */}
+                        {producto.foto ? (
+                            // Si producto.foto no está vacío o nulo, mostrar la imagen
+                            <img className="w-100" src={producto.foto} alt="Producto" />
+                        ) : (
+                            // Si producto.foto es vacío o nulo, mostrar la imagen predeterminada
+                            <img className="w-100" src="https://www.hostingplus.com.co/wp-content/uploads/2020/12/error404quees.jpg" alt="Error 404" />
+                        )}
+                    </div>
+                </ModalBody>
+                <ModalFooter>
+                    <Button size="sm" color="danger" onClick={cerrarModalImagen}>Cerrar</Button>
+                </ModalFooter>
+            </Modal>
 
             <Modal isOpen={verModal}>
                 <ModalHeader>
@@ -323,17 +395,12 @@ const Producto = () => {
                         </Col>
                         <Col sm={6}>
                             <FormGroup>
-                                <Label>Proveedor</Label>
-                                <Select
-                                    defaultValue={buscarProveedorPorNit(producto.nitProveedor) || defaultValue}
-                                    options={suppliers}
-                                    onChange={handleSelectChange}
-                                />
+                                <Label>Foto</Label>
+                                <Input bsSize="sm" name="foto" onChange={handleChange} value={producto.foto} />
                             </FormGroup>
                         </Col>
                     </Row>
                     <Row>
-
                         <Col sm={6}>
                             <FormGroup>
                                 <Label>Fecha</Label>
@@ -346,12 +413,26 @@ const Producto = () => {
                                 />
                             </FormGroup>
                         </Col>
+                        <Col sm={6}>
+                            <FormGroup>
+                                <Label>Proveedor</Label>
+                                <Select
+                                    defaultValue={buscarProveedorPorNit(producto.nitProveedor) || defaultValue}
+                                    options={suppliers}
+                                    onChange={handleSelectChange}
+                                />
+                            </FormGroup>
+                        </Col>
                     </Row>
 
 
                 </ModalBody>
                 <ModalFooter>
-                    <Button size="sm" color="primary" onClick={guardarCambios}>Guardar</Button>
+                    <Button size="sm" color="primary"
+                        className={`btnP ${isScaled ? 'scaled' : ''}`}
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                        onClick={guardarCambios}>Guardar</Button>
                     <Button size="sm" color="danger" onClick={cerrarModal}>Cerrar</Button>
                 </ModalFooter>
             </Modal>

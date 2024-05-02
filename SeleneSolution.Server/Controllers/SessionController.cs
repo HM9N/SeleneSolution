@@ -30,9 +30,9 @@ namespace SeleneSolution.Server.Controllers
 
                 return StatusCode(StatusCodes.Status200OK, usuario);
             }
-            catch
+            catch(Exception ex) 
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, usuario);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }

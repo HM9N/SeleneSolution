@@ -14,9 +14,10 @@ import Producto from './views/Producto';
 import Proveedor from './views/Proveedor';
 import ActividadVendedores from './views/ActividadVendedores';
 import ActividadProductos from './views/ActividadProductos';
-
+import ProductosConProveedores from './views/ProductosConProveedores';
 import UserProvider from "./context/UserProvider"
 import VerificarUsuario from './componentes/VerificarUsuario';
+import VerificarAdministrador from './componentes/VerificarAdministrador';
 import HistorialVenta from './views/HistorialVenta';
 
 
@@ -39,10 +40,11 @@ root.render(
                     <Route path='usuario' element={<VerificarUsuario> <Usuario /> </VerificarUsuario>} />
                     <Route path='venta' element={<VerificarUsuario> <Venta /> </VerificarUsuario>} />
                     <Route path='historialventa' element={<VerificarUsuario> <HistorialVenta /> </VerificarUsuario>} />
-                    <Route path='producto' element={<VerificarUsuario> <Producto /> </VerificarUsuario>} />
-                    <Route path='proveedor' element={<VerificarUsuario> <Proveedor /> </VerificarUsuario>} />
-                    <Route path='actividadvendedores' element={<VerificarUsuario> <ActividadVendedores /> </VerificarUsuario>} />
-                    <Route path='actividadproductos' element={<VerificarUsuario> <ActividadProductos /> </VerificarUsuario>} />
+                    <Route path='producto' element={<VerificarAdministrador> <Producto /> </VerificarAdministrador>} />
+                    <Route path='proveedor' element={<VerificarAdministrador> <Proveedor /> </VerificarAdministrador>} />
+                    <Route path='actividadvendedores' element={<VerificarAdministrador> <ActividadVendedores /> </VerificarAdministrador>} />
+                    <Route path='actividadproductos' element={<VerificarAdministrador> <ActividadProductos /> </VerificarAdministrador>} />
+                    <Route path='ProductosConProveedores' element={<VerificarAdministrador> <ProductosConProveedores /> </VerificarAdministrador>} />
 
                 </Route>
                 <Route path='*' element={<NotFound />} />

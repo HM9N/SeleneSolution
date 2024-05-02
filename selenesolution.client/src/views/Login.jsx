@@ -44,10 +44,11 @@ const Login = () => {
             }
 
         }).catch((error) => {
+            console.log("El error")
             console.log(error)
             Swal.fire(
                 'Opps!',
-                'No se pudo iniciar sessión',
+                'No se pudo iniciar sessión' + "" + error,
                 'error'
             )
         })

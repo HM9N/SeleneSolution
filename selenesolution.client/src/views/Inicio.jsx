@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { useContext, useEffect } from "react";
-import { FormGroup, Input, Label, Row, Col } from "reactstrap";
+import {Row, Col } from "reactstrap";
 import { UserContext } from "../context/UserProvider";
 
 const modelo = {

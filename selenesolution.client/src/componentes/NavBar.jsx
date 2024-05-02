@@ -72,6 +72,7 @@ const NavBar = () => {
                         <div className="bg-white py-2 collapse-inner rounded">
                             <NavLink to="/actividadvendedores" className="collapse-item">Vendedores</NavLink>
                             <NavLink to="/actividadproductos" className="collapse-item">Productos</NavLink>
+                            <NavLink to="/ProductosConProveedores" className="collapse-item">Resumen Productos</NavLink>
                         </div>
                     </div>
                 </li>

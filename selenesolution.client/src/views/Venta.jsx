@@ -6,6 +6,8 @@ import Autosuggest from 'react-autosuggest';
 import { useContext, useState } from "react";
 import "./css/Venta.css"
 import { UserContext } from "../context/UserProvider";
+import TablaProductosVentas from "../componentes/TablaProductosVentas";
+
 
 const Venta = () => {
     const { user } = useContext(UserContext)
@@ -41,7 +43,7 @@ const Venta = () => {
             }).catch((error) => {
                 console.log("No se pudo obtener datos, mayor detalle: ", error)
             })
-        
+
     }
 
     //funcion que nos permite borrar las sugerencias
@@ -52,7 +54,7 @@ const Venta = () => {
     //devuelve el texto que se mostrara en la caja de texto del autocomplete cuando seleccionas una sugerencia (item)
     const getSuggestionValue = (sugerencia) => {
 
-        return sugerencia.codigo + " - " + sugerencia.nombre 
+        return sugerencia.codigo + " - " + sugerencia.nombre
     }
 
     // Como se debe mostrar las sugerencias - código HTML
@@ -64,12 +66,16 @@ const Venta = () => {
 
 
     //evento cuando cambie el valor del texto de busqueda
-    const onChange = (e, {newValue}) => {
+    const onChange = (e, { newValue }) => {
         setA_Busqueda(newValue)
     }
 
+    const onActionButtonClickHandler = ( row) => {
+       
+    }
+
     const inputProps = {
-        placeholder : "Buscar producto",
+        placeholder: "Buscar producto",
         value: a_Busqueda,
         onChange
     }
@@ -78,7 +84,7 @@ const Venta = () => {
         console.log(suggestion)
         Swal.fire({
             title: suggestion.codigo + " - " + suggestion.nombre,
-            text:"Ingrese la cantidad",
+            text: "Ingrese la cantidad",
             input: 'text',
             inputAttributes: {
                 autocapitalize: 'off'
@@ -89,18 +95,18 @@ const Venta = () => {
             showLoaderOnConfirm: true,
             preConfirm: (inputValue) => {
 
-                
+
                 if (isNaN(parseFloat(inputValue))) {
                     setA_Busqueda("")
                     Swal.showValidationMessage(
                         "Debe ingresar un valor númerico"
                     )
-                }else if(parseFloat(inputValue<=0.9)){
+                } else if (parseFloat(inputValue <= 0.9)) {
                     setA_Busqueda("")
                     Swal.showValidationMessage(
                         "Debe ingresar un valor positivo"
                     )
-                } 
+                }
                 else {
 
                     let producto = {
@@ -119,7 +125,7 @@ const Venta = () => {
                     setProductos((anterior) => [...anterior, producto])
                     calcularTotal(arrayProductos)
                 }
-                
+
 
             },
             allowOutsideClick: () => !Swal.isLoading()
@@ -131,6 +137,34 @@ const Venta = () => {
                 setA_Busqueda("")
             }
         })
+    }
+
+    const retornarCuerpoTabla = (productos) =>{
+        if (productos.length < 1){
+            return (
+                <tr>
+                    <td colSpan="5">Sin productos</td>
+                </tr>)
+        } 
+         else{
+           return (
+                productos.map((item) => (
+                    <tr key={item.codigo}>
+                        <td>
+                            <Button color="danger" size="sm"
+                                onClick={() => eliminarProducto(item.codigo)}
+                            >
+                                <i className="fas fa-trash-alt"></i>
+                            </Button>
+                        </td>
+                        <td>{item.nombre}</td>
+                        <td>{item.cantidad}</td>
+                        <td>{item.valor}</td>
+                        <td>{item.total}</td>
+                    </tr>
+                ))
+            )
+         }
     }
 
     const eliminarProducto = (id) => {
@@ -182,7 +216,7 @@ const Venta = () => {
             idUsuario: JSON.parse(user).idUsuario,
             subTotal: parseFloat(subTotal),
             impuesto: parseFloat(igv),
-            total:parseFloat(total),
+            total: parseFloat(total),
             listaProductos: productos
         }
 
@@ -197,22 +231,22 @@ const Venta = () => {
             .then((response) => {
                 return response.ok ? response.json() : Promise.reject(response);
             })
-        .then((dataJson) => {
-            reestablecer();
-            var data = dataJson;
-            Swal.fire(
-                'Venta Creada!',
-                'success'
-            )
+            .then((dataJson) => {
+                reestablecer();
+                var data = dataJson;
+                Swal.fire(
+                    'Venta Creada!',
+                    'success'
+                )
 
-        }).catch((error) => {
-            Swal.fire(
-                'Opps!',
-                'No se pudo crear la venta',
-                'error'
-            )
-            console.log("No se pudo enviar la venta ", error)
-        })
+            }).catch((error) => {
+                Swal.fire(
+                    'Opps!',
+                    'No se pudo crear la venta',
+                    'error'
+                )
+                console.log("No se pudo enviar la venta ", error)
+            })
 
     }
 
@@ -237,7 +271,7 @@ const Venta = () => {
                                     <Col sm={6}>
                                         <FormGroup>
                                             <Label>Nombre</Label>
-                                            <Input bsSize="sm" value={nombreCliente} onChange={(e) => setNombreCliente(e.target.value)}/>
+                                            <Input bsSize="sm" value={nombreCliente} onChange={(e) => setNombreCliente(e.target.value)} />
                                         </FormGroup>
                                     </Col>
                                 </Row>
@@ -269,6 +303,14 @@ const Venta = () => {
                                 </Row>
                                 <Row>
                                     <Col sm={12}>
+                                        <div className="d-block d-sm-none">
+                                        <TablaProductosVentas productos={productos}
+                                        onActionButtonClick={eliminarProducto}
+                                        >
+
+                                        </TablaProductosVentas>
+                                        </div>
+                                        <div className='d-none d-sm-block'>
                                         <Table striped size="sm">
                                             <thead>
                                                 <tr>
@@ -281,33 +323,13 @@ const Venta = () => {
                                             </thead>
                                             <tbody>
                                                 {
-                                                    (productos.length < 1) ? (
-                                                        <tr>
-                                                            <td colSpan="5">Sin productos</td>
-                                                        </tr>
-                                                    ) :
-                                                    (
-                                                        productos.map((item) => (
-                                                            <tr key={item.codigo}>
-                                                                <td>
-                                                                    <Button color="danger" size="sm"
-                                                                        onClick={() => eliminarProducto(item.codigo)}
-                                                                    >
-                                                                        <i className="fas fa-trash-alt"></i>
-                                                                    </Button>
-                                                                </td>
-                                                                <td>{item.nombre}</td>
-                                                                <td>{item.cantidad}</td>
-                                                                <td>{item.valor}</td>
-                                                                <td>{item.total}</td>
-                                                            </tr>
-                                                        ))
-                                                    )
+                                                    retornarCuerpoTabla(productos)
                                                 }
                                             </tbody>
                                         </Table>
+                                        </div>
                                     </Col>
-                                    
+
                                 </Row>
                             </CardBody>
                         </Card>
@@ -351,9 +373,9 @@ const Venta = () => {
                                         </InputGroup>
                                     </Col>
                                 </Row>
-                                
-                                
-                                
+
+
+
                             </CardBody>
                         </Card>
                     </Col>

@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SeleneSolution.Server.Models;
+using SeleneSolution.Server.Models.DTO;
+using System.Data;
 using System.Globalization;
 
 namespace SeleneSolution.Server.Controllers
@@ -106,5 +109,69 @@ namespace SeleneSolution.Server.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("ListaProductosProveedores")]
+        public async Task<IActionResult> ListarProductosProveedores()
+        {
+
+            string fechaInicio = HttpContext.Request.Query["fechaInicio"];
+            string fechaFin = HttpContext.Request.Query["fechaFin"];
+
+            DateTime _fechaInicio = DateTime.ParseExact(fechaInicio, "dd/MM/yyyy", CultureInfo.CreateSpecificCulture("es-CO"));
+            DateTime _fechaFin = DateTime.ParseExact(fechaFin, "dd/MM/yyyy", CultureInfo.CreateSpecificCulture("es-CO"));
+
+            List<DtoProductosProveedores> listaProductosProveedores = new List<DtoProductosProveedores>();
+            try
+            {
+                using (SqlConnection con = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await con.OpenAsync();
+
+                    SqlCommand cmd = new SqlCommand("ProductosYProveedores", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@fechaInicio", _fechaInicio);
+                    cmd.Parameters.AddWithValue("@fechaFin", _fechaFin);
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            string codigoProducto = reader["CodigoProducto"].ToString();
+                            string nombreProducto = reader["NombreProducto"].ToString();
+                            decimal valorProducto = Convert.ToDecimal(reader["ValorProducto"]);
+                            string nombreProveedor = reader["NombreProveedor"].ToString();
+                            string correoProveedor = reader["CorreoProveedor"].ToString();
+                            string celular = reader["CelularProveedor"].ToString();
+
+                            listaProductosProveedores.Add(new DtoProductosProveedores
+                            { NombreProducto = nombreProducto, 
+                                CodigoProducto = codigoProducto,
+                            ProductoValor= valorProducto,
+                            NombreProveedor= nombreProveedor,
+                            CorreoProveedor= correoProveedor,
+                            CelularProveedor= celular}
+                                  );
+                        }
+                    }
+                }
+
+                if (listaProductosProveedores.Count() > 0)
+                {
+                    return StatusCode(StatusCodes.Status200OK, listaProductosProveedores);
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status204NoContent, "No se encontraron datos");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+
     }
 }
