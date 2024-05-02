@@ -65,7 +65,7 @@ const Login = () => {
                         <div className="card-body p-0">
 
                             <div className="row">
-                                <div className="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                                <div className="col-lg-6 d-none d-lg-block bg-login-image2"></div>
                                 <div className="col-lg-6">
                                     <div className="p-5">
                                         <div className="text-center">

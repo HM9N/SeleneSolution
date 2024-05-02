@@ -3,7 +3,7 @@
 import { Card, CardBody, CardHeader, Col, FormGroup, Input, InputGroup, InputGroupText, Label, Row, Table, Button,Modal,ModalHeader,ModalBody,ModalFooter } from "reactstrap";
 import DatePicker from "react-datepicker";
 import Swal from 'sweetalert2'
-
+import convertirAMoneda from '../../public/js/tools'
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 
@@ -125,7 +125,7 @@ const ActividadVendedores = () => {
                                                         vendedores.map((item) => (
                                                             <tr key={item.nombre}>
                                                             <td>{item.nombre}</td>
-                                                            <td>{item.total}</td>
+                                                            <td>{convertirAMoneda(item.total)}</td>
                                                         </tr>
                                                     ))
                                                 )

@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
-import { Card, CardBody, CardHeader, Button, Modal, ModalHeader, ModalBody, Label, Input, FormGroup, ModalFooter, Row, Col } from "reactstrap"
-
+import { Button } from "reactstrap"
+import convertirAMoneda from '../../public/js/tools'
 
 function TablaProductosVentas(props) {
   const { productos } = props
@@ -10,34 +10,6 @@ function TablaProductosVentas(props) {
   const onActionButtonClickHandler = (action, row) =>{
      props.onActionButtonClick(action, row)
   }
-
-  const retornarCuerpoTabla = (productos) =>{
-    if (productos.length < 1){
-        return (
-            <tr>
-                <td colSpan="5">Sin productos</td>
-            </tr>)
-    } 
-     else{
-       return (
-            productos.map((item) => (
-                <tr key={item.codigo}>
-                    <td>
-                        <Button color="danger" size="sm"
-                            onClick={() => eliminarProducto(item.codigo)}
-                        >
-                            <i className="fas fa-trash-alt"></i>
-                        </Button>
-                    </td>
-                    <td>{item.nombre}</td>
-                    <td>{item.cantidad}</td>
-                    <td>{item.valor}</td>
-                    <td>{item.total}</td>
-                </tr>
-            ))
-        )
-     }
-}
 
   useEffect(() => {
     console.log(productos)
@@ -58,11 +30,11 @@ function TablaProductosVentas(props) {
           <div className="w-100 d-flex flex-wrap">
             <div className="border col-6">
               <div className="font-weight-bold">Valor</div>
-              <div>{d.valor}</div>
+              <div>{convertirAMoneda(d.valor)}</div>
             </div>
             <div className="border col-6">
               <div className="font-weight-bold">Total</div>
-              <div>{d.total}</div>
+              <div>{convertirAMoneda(d.total)}</div>
             </div>
           </div>
           <div className="border col-12 d-flex justify-content-center pt-2 py-2">

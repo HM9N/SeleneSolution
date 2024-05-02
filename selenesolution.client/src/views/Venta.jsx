@@ -7,6 +7,8 @@ import { useContext, useState } from "react";
 import "./css/Venta.css"
 import { UserContext } from "../context/UserProvider";
 import TablaProductosVentas from "../componentes/TablaProductosVentas";
+import convertirAMoneda from '../../public/js/tools'
+
 
 
 const Venta = () => {
@@ -14,10 +16,9 @@ const Venta = () => {
 
     const [a_Productos, setA_Productos] = useState([])
     const [a_Busqueda, setA_Busqueda] = useState("")
-
+    const [porcentajeImpuesto, setPorcentajeImpuesto] = useState("19%")
     const [documentoCliente, setDocumentoCliente] = useState("")
     const [nombreCliente, setNombreCliente] = useState("")
-
     const [productos, setProductos] = useState([])
     const [total, setTotal] = useState(0)
     const [subTotal, setSubTotal] = useState(0)
@@ -25,6 +26,7 @@ const Venta = () => {
 
     const reestablecer = () => {
         setDocumentoCliente("")
+        setPorcentajeImpuesto("19%")
         setNombreCliente("")
         setProductos([])
         setTotal(0)
@@ -70,8 +72,8 @@ const Venta = () => {
         setA_Busqueda(newValue)
     }
 
-    const onActionButtonClickHandler = ( row) => {
-       
+    const onActionButtonClickHandler = (row) => {
+
     }
 
     const inputProps = {
@@ -95,7 +97,8 @@ const Venta = () => {
             showLoaderOnConfirm: true,
             preConfirm: (inputValue) => {
 
-
+                console.log("jolaaaaaaaa")
+                console.log(inputValue)
                 if (isNaN(parseFloat(inputValue))) {
                     setA_Busqueda("")
                     Swal.showValidationMessage(
@@ -109,21 +112,31 @@ const Venta = () => {
                 }
                 else {
 
-                    let producto = {
-                        nitProveedor: suggestion.nitProveedor,
-                        idProducto: suggestion.idProducto,
-                        codigo: suggestion.codigo,
-                        nombre: suggestion.nombre,
-                        cantidad: parseInt(inputValue),
-                        valor: suggestion.valor,
-                        total: suggestion.valor * parseFloat(inputValue)
+                    const productoExistente = productos.find(producto => producto.codigo === suggestion.codigo);
+                    if(productoExistente){
+                        Swal.fire({
+                            title: 'Producto Existente',
+                            text: 'Este producto ya ha sido agregado anteriormente a la lista de venta',
+                            icon: 'warning',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    }else{
+                        let producto = {
+                            nitProveedor: suggestion.nitProveedor,
+                            idProducto: suggestion.idProducto,
+                            codigo: suggestion.codigo,
+                            nombre: suggestion.nombre,
+                            cantidad: parseInt(inputValue),
+                            valor: suggestion.valor,
+                            total: suggestion.valor * parseFloat(inputValue)
+                        }
+                        let arrayProductos = []
+                        arrayProductos.push(...productos)
+                        arrayProductos.push(producto)
+    
+                        setProductos((anterior) => [...anterior, producto])
+                        calcularTotal(arrayProductos)
                     }
-                    let arrayProductos = []
-                    arrayProductos.push(...productos)
-                    arrayProductos.push(producto)
-
-                    setProductos((anterior) => [...anterior, producto])
-                    calcularTotal(arrayProductos)
                 }
 
 
@@ -139,15 +152,15 @@ const Venta = () => {
         })
     }
 
-    const retornarCuerpoTabla = (productos) =>{
-        if (productos.length < 1){
+    const retornarCuerpoTabla = (productos) => {
+        if (productos.length < 1) {
             return (
                 <tr>
                     <td colSpan="5">Sin productos</td>
                 </tr>)
-        } 
-         else{
-           return (
+        }
+        else {
+            return (
                 productos.map((item) => (
                     <tr key={item.codigo}>
                         <td>
@@ -159,12 +172,12 @@ const Venta = () => {
                         </td>
                         <td>{item.nombre}</td>
                         <td>{item.cantidad}</td>
-                        <td>{item.valor}</td>
-                        <td>{item.total}</td>
+                        <td>{convertirAMoneda(item.valor)}</td>
+                        <td>{convertirAMoneda(item.total)}</td>
                     </tr>
                 ))
             )
-         }
+        }
     }
 
     const eliminarProducto = (id) => {
@@ -187,7 +200,18 @@ const Venta = () => {
             });
 
             // Calcular el subtotal dividiendo el total entre 1 + la tasa de IVA (0.19)
-            subtotal = total / (1 + 0.19);
+            // Definimos un objeto para mapear los porcentajes de impuestos a sus valores correspondientes
+            const impuestos = {
+                "19%": 0.19,
+                "15%": 0.15,
+                "0%": 0.0
+            };
+
+            // Verificamos si el porcentaje de impuesto está en el objeto de impuestos
+            if (porcentajeImpuesto in impuestos) {
+                // Calculamos el subtotal utilizando el valor del objeto de impuestos
+                subtotal = total / (1 + impuestos[porcentajeImpuesto]);
+            }
 
             // Calcular el impuesto restando el subtotal del total
             impuesto = total - subtotal;
@@ -199,6 +223,9 @@ const Venta = () => {
         setTotal(total.toFixed(2));
     }
 
+    const selectChangeAmountHandler = (e) =>{
+        setPorcentajeImpuesto(e)
+    }
 
     const terminarVenta = () => {
         if (productos.length < 1) {
@@ -253,7 +280,6 @@ const Venta = () => {
     return (
         <Row>
             <Col sm={8}>
-
                 <Row className="mb-2">
                     <Col sm={12}>
                         <Card>
@@ -304,29 +330,29 @@ const Venta = () => {
                                 <Row>
                                     <Col sm={12}>
                                         <div className="d-block d-sm-none">
-                                        <TablaProductosVentas productos={productos}
-                                        onActionButtonClick={eliminarProducto}
-                                        >
+                                            <TablaProductosVentas productos={productos}
+                                                onActionButtonClick={eliminarProducto}
+                                            >
 
-                                        </TablaProductosVentas>
+                                            </TablaProductosVentas>
                                         </div>
                                         <div className='d-none d-sm-block'>
-                                        <Table striped size="sm">
-                                            <thead>
-                                                <tr>
-                                                    <th></th>
-                                                    <th>Producto</th>
-                                                    <th>Cantidad</th>
-                                                    <th>Precio</th>
-                                                    <th>Total</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {
-                                                    retornarCuerpoTabla(productos)
-                                                }
-                                            </tbody>
-                                        </Table>
+                                            <Table striped size="sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Producto</th>
+                                                        <th>Cantidad</th>
+                                                        <th>Precio</th>
+                                                        <th>Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {
+                                                        retornarCuerpoTabla(productos)
+                                                    }
+                                                </tbody>
+                                            </Table>
                                         </div>
                                     </Col>
 
@@ -352,16 +378,28 @@ const Venta = () => {
                                 <Row className="mb-2">
                                     <Col sm={12}>
                                         <InputGroup size="sm" >
-                                            <InputGroupText>Sub Total:</InputGroupText>
-                                            <Input disabled value={subTotal} />
+                                            <InputGroupText>Tipo:</InputGroupText>
+                                            <Input type="select" value={porcentajeImpuesto} onChange={(e) => selectChangeAmountHandler(e.target.value)}>
+                                                <option value="0%">0%</option>
+                                                <option value="15%">15%</option>
+                                                <option value="19%">19%</option>
+                                            </Input>
                                         </InputGroup>
                                     </Col>
                                 </Row>
                                 <Row className="mb-2">
                                     <Col sm={12}>
                                         <InputGroup size="sm" >
-                                            <InputGroupText>IVA (19%):</InputGroupText>
-                                            <Input disabled value={igv} />
+                                            <InputGroupText>Sub Total:</InputGroupText>
+                                            <Input disabled value={convertirAMoneda(subTotal)} />
+                                        </InputGroup>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-2">
+                                    <Col sm={12}>
+                                        <InputGroup size="sm" >
+                                            <InputGroupText>IVA ({porcentajeImpuesto}):</InputGroupText>
+                                            <Input disabled value={convertirAMoneda(igv)} />
                                         </InputGroup>
                                     </Col>
                                 </Row>
@@ -369,7 +407,7 @@ const Venta = () => {
                                     <Col sm={12}>
                                         <InputGroup size="sm" >
                                             <InputGroupText>Total:</InputGroupText>
-                                            <Input disabled value={total} />
+                                            <Input disabled value={convertirAMoneda(total)} />
                                         </InputGroup>
                                     </Col>
                                 </Row>

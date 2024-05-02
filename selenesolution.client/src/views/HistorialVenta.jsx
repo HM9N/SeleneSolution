@@ -3,7 +3,7 @@
 import { Card, CardBody, CardHeader, Col, FormGroup, Input, InputGroup, InputGroupText, Label, Row, Table, Button,Modal,ModalHeader,ModalBody,ModalFooter } from "reactstrap";
 import DatePicker from "react-datepicker";
 import Swal from 'sweetalert2'
-
+import convertirAMoneda from '../../public/js/tools'
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 
@@ -150,7 +150,7 @@ const HistorialVenta = () => {
                                                             <td>{item.idVenta}</td>
                                                             <td>{item.fechaRegistro}</td>
                                                             <td>{item.usuarioRegistro}</td>
-                                                            <td>{item.total}</td>
+                                                            <td>{convertirAMoneda(item.total)}</td>
                                                             <td>
                                                                 <Button size="sm" color="info" outline
                                                                     onClick={() => mostrarModal(item)}
@@ -211,19 +211,19 @@ const HistorialVenta = () => {
                         <Col sm={4}>
                             <FormGroup>
                                 <Label>Sub Total:</Label>
-                                <Input bsSize="sm" disabled value={detalleVenta.subTotal} />
+                                <Input bsSize="sm" disabled value={convertirAMoneda(detalleVenta.subTotal)} />
                             </FormGroup>
                         </Col>
                         <Col sm={4}>
                             <FormGroup>
                                 <Label>Impuesto:</Label>
-                                <Input bsSize="sm" disabled value={detalleVenta.impuesto}/>
+                                <Input bsSize="sm" disabled value={convertirAMoneda(detalleVenta.impuesto)}/>
                             </FormGroup>
                         </Col>
                         <Col sm={4}>
                             <FormGroup>
                                 <Label>Total:</Label>
-                                <Input bsSize="sm" disabled value={detalleVenta.total} />
+                                <Input bsSize="sm" disabled value={convertirAMoneda(detalleVenta.total)} />
                             </FormGroup>
                         </Col>
                     </Row>
@@ -247,8 +247,8 @@ const HistorialVenta = () => {
                                                 <tr key={item.producto}>
                                                     <td>{item.producto}</td>
                                                     <td>{item.cantidad}</td>
-                                                    <td>{item.precio}</td>
-                                                    <td>{item.total}</td>
+                                                    <td>{convertirAMoneda(item.precio)}</td>
+                                                    <td>{convertirAMoneda(item.total)}</td>
                                                 </tr>
                                             ))
                                         )

@@ -3,7 +3,7 @@
 import { Card, CardBody, CardHeader, Col, FormGroup, Input, InputGroup, InputGroupText, Label, Row, Table, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DatePicker from "react-datepicker";
 import Swal from 'sweetalert2'
-
+import convertirAMoneda from '../../public/js/tools'
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 
@@ -130,7 +130,7 @@ const ProductosProveedores = () => {
                                                         <tr key={i}>
                                                             <td>{item.nombreProducto}</td>
                                                             <td>{item.codigoProducto}</td>
-                                                            <td>{item.productoValor}</td>
+                                                            <td>{convertirAMoneda(item.productoValor)}</td>
                                                             <td>{item.nombreProveedor}</td>
                                                             <td>{item.correoProveedor}</td>
                                                             <td>{item.celularProveedor}</td>

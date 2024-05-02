@@ -8,7 +8,7 @@ import { Card, CardBody, CardHeader, Button, Modal, ModalHeader, ModalBody, Labe
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import Select from 'react-select'
-import LayoutBreakpoint from "../componentes/LayoutBreakpoint";
+import convertirAMoneda from '../../public/js/tools'
 import XSTable from "../componentes/XSTable";
 import './css/Botones.css';
 
@@ -126,7 +126,7 @@ const Producto = () => {
         },
         {
             name: 'Valor',
-            selector: row => row.valor,
+            selector: row => convertirAMoneda(row.valor),
             sortable: true,
         },
         {
@@ -221,6 +221,8 @@ const Producto = () => {
             abrirEditarModal(row)
         } else if (action == "VIEW") {
             abrirModalImagen(row)
+        } else if (action == "DELETE"){
+            eliminarProducto(row.idProducto)
         }
     }
 
@@ -429,7 +431,6 @@ const Producto = () => {
                 </ModalBody>
                 <ModalFooter>
                     <Button size="sm" color="primary"
-                        className={`btnP ${isScaled ? 'scaled' : ''}`}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         onClick={guardarCambios}>Guardar</Button>

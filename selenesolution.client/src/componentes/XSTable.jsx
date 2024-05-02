@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import { Button} from "reactstrap"
+import convertirAMoneda from '../../public/js/tools'
 
 
 
@@ -54,7 +55,7 @@ function XSTable(props) {
           </div>
           <div className="border col-4 ">
             <div className="font-weight-bold">Valor</div>
-            <div>{d.valor}</div>
+            <div>{convertirAMoneda(d.valor)}</div>
           </div>
           <div className="border col-6">
             <div className="font-weight-bold">Fecha Creación</div>
